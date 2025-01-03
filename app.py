@@ -1,30 +1,31 @@
-from flask import Flask, request, jsonify
-from faqs import find_best_match
+import streamlit as st
+from faqs import model
+from faqs import faqs
+from faqs import index as faiss_index 
 
-app = Flask(__name__)
+# Title of the app
+st.title("Frequently Asked Questions")
 
-@app.route('/')
-def home():
-    return "Welcome to the FAQ Search API! Use the `/search` endpoint to find answers."
+# Subtitle
+st.subheader("We are here to assist you")
 
-@app.route('/favicon.ico')
-def favicon():
-    return '', 204  # Suppress favicon request errors
+# User input
+user_query = st.text_input("Ask a question:")
 
-@app.route('/search', methods=['POST'])
-def search_faq():
-    query = request.json.get('query', '')
-    if not query:
-        return jsonify({"error": "Query cannot be empty"}), 400
-    
-    # Replace this with your FAISS search logic
-    result = find_best_match(query)  # Assuming you implemented this function
-    return jsonify(result)
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
-
+if st.button("Search"):
+    if user_query.strip():  # Ensure the input is not empty
+        # Generate embedding for user query
+        query_embedding = model.encode([user_query])
+        
+        # Search FAISS index for the closest match
+        distances, indices = faiss_index.search(query_embedding, k=1)
+        
+        # Display result
+        if distances[0][0] < 1.0:  # A threshold to determine a good match
+            matched_faq = faqs[indices[0][0]]
+            st.success(f"**Question:** {matched_faq['question']}")
+            st.info(f"**Answer:** {matched_faq['answer']}")
+        else:
+            st.warning("Sorry, no matching FAQ was found.")
+    else:
+        st.error("Please enter a question!")
