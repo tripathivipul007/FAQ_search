@@ -7,7 +7,7 @@ import numpy as np
 faqs = [
     {"question": "What is your return policy?", "answer": "You can return items within 30 days."},
     {"question": "How do I reset my password?", "answer": "Click on 'Forgot Password' on the login page."},
-    {"question": "What payment methods do you accept?", "answer": "We accept credit cards, PayPal, and more."},
+    {"question": "What payment methods do you accept?", "answer": "We accept credit cards, debit cards, upis, and more."},
     {"question": "How do I track my order?", "answer": "You can track your order using the tracking link sent to your email."},
     {"question": "Can I cancel my order?", "answer": "Yes, you can cancel your order within 24 hours of placing it."},
     {"question": "Do you offer international shipping?", "answer": "Yes, we ship to selective countries. Please check the shipping options at checkout."},
