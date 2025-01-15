@@ -39,83 +39,44 @@ st.markdown("""
             color: #2c82c9;
         }
         .input-container {
-            position: fixed;
-            bottom: 0;
-            width: 80%;
-            background-color: #ffffff;
-            padding: 10px 15px;
-            border-top: 1px solid #e1e1e1;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
         }
-        .input-box {
-            width: calc(100% - 60px);
-            padding: 10px;
-            border: 1px solid #d1d1d1;
-            border-radius: 20px;
-            outline: none;
+        .input-container input {
+            flex: 1;
         }
-        .ask-button {
-            background-color: #2c82c9;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            cursor: pointer;
+        .input-container button {
             margin-left: 10px;
-        }
-        .ask-button:hover {
-            background-color: #216b9b;
         }
     </style>
 """, unsafe_allow_html=True)
 
-# Initialize chat history
+# Initialize session state variables
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+if "last_input" not in st.session_state:
+    st.session_state.last_input = ""
 
 # Title and subtitle
 st.markdown("<h1 style='text-align: center; color: #2c82c9;'>Albeena FAQ Bot</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #6c757d;'>Your friendly assistant for quick answers!</h3>", unsafe_allow_html=True)
 
-# Chat container
-st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
-
-# Display chat history
-for message in st.session_state.chat_history:
-    if message["role"] == "user":
-        st.markdown(f"""
-            <div class="chat-bubble chat-bubble-user">
-                {message["content"]}
-            </div>
-        """, unsafe_allow_html=True)
-    elif message["role"] == "bot":
-        st.markdown(f"""
-            <div class="chat-bubble chat-bubble-bot">
-                <span class="bot-name">Albeena:</span> {message["content"]}
-            </div>
-        """, unsafe_allow_html=True)
-
+# Input box and Ask button for user queries
+st.markdown("<div class='input-container'>", unsafe_allow_html=True)
+user_input = st.text_input(
+    label="Ask your question:",
+    placeholder="Type your question here...",
+    label_visibility="collapsed",
+    key="user_input",
+)
+ask_button = st.button("Ask")
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Input box and button container using columns
-col1, col2 = st.columns([4, 1])  # Create two columns, one for input and one for the button
+# Process input when the Ask button is clicked
+if ask_button and user_input and user_input != st.session_state.last_input:
+    # Update last input to prevent duplication
+    st.session_state.last_input = user_input
 
-with col1:
-    user_input = st.text_input(
-        label="Ask your question:",
-        placeholder="Type your question here...",
-        label_visibility="collapsed",
-        key="user_input",
-    )
-
-with col2:
-    ask_button = st.button("Ask", use_container_width=True, key="ask_button")
-
-# Process input when the "Ask" button is clicked
-if ask_button and user_input.strip():
     # Add user question to chat history
     st.session_state.chat_history.append({"role": "user", "content": user_input})
 
@@ -135,5 +96,21 @@ if ask_button and user_input.strip():
     # Add bot response to chat history
     st.session_state.chat_history.append({"role": "bot", "content": bot_response})
 
-    # Rerun to update chat
-    st.experimental_rerun()
+# Display the chat history **below** the input box (above it on the screen)
+st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+
+for message in st.session_state.chat_history:
+    if message["role"] == "user":
+        st.markdown(f"""
+            <div class="chat-bubble chat-bubble-user">
+                {message["content"]}
+            </div>
+        """, unsafe_allow_html=True)
+    elif message["role"] == "bot":
+        st.markdown(f"""
+            <div class="chat-bubble chat-bubble-bot">
+                <span class="bot-name">Albeena:</span> {message["content"]}
+            </div>
+        """, unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
